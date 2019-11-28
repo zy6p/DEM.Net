@@ -1,4 +1,6 @@
 ﻿using AssetGenerator.Runtime.ExtensionMethods;
+using AssetGenerator.Runtime.Extensions;
+using glTFLoader.Schema;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -797,21 +799,60 @@ namespace AssetGenerator.Runtime
                 {
                     gltf.ExtensionsUsed = new List<string>();
                 }
+                
                 foreach (var runtimeExtension in runtimeMaterial.Extensions)
                 {
-                    switch (runtimeExtension.Name)
-                    {
-                        default:
-                            throw new NotImplementedException("Extension schema conversion not implemented for " + runtimeExtension.Name);
-                    }
+                    //object extension;
+                    //switch (runtimeExtension.Name)
+                    //{
+                    //    case nameof(KHR_materials_pbrSpecularGlossiness):
+                    //        extension = ConvertMaterialPbrSpecularGlossiness((KHR_materials_pbrSpecularGlossiness)runtimeExtension);
+                    //        break;
+                    //    default:
+                    //        throw new NotImplementedException("Extension schema conversion not implemented for " + runtimeExtension.Name);
+                    //}
+                    //material.Extensions.Add(runtimeExtension.Name, extension);
+                    //extensionsUsed.Add(runtimeExtension.Name);
 
-                    
                 }
                 gltf.ExtensionsUsed = extensionsUsed;
             }
 
             return material;
         }
+
+        private MaterialPbrSpecularGlossiness ConvertMaterialPbrSpecularGlossiness(KHR_materials_pbrSpecularGlossiness runtimeMaterial)
+        {
+            var material = CreateInstance<MaterialPbrSpecularGlossiness>();
+
+            if (runtimeMaterial.DiffuseFactor.HasValue)
+            {
+                material.DiffuseFactor = runtimeMaterial.DiffuseFactor.Value.ToArray();
+            }
+
+            if (runtimeMaterial.DiffuseTexture != null)
+            {
+                throw new NotImplementedException("runtimeMaterial.DiffuseTexture");
+            }
+
+            if (runtimeMaterial.SpecularFactor.HasValue)
+            {
+                material.SpecularFactor = runtimeMaterial.SpecularFactor.Value.ToArray();
+            }
+
+            if (runtimeMaterial.GlossinessFactor.HasValue)
+            {
+                material.GlossinessFactor = runtimeMaterial.GlossinessFactor.Value;
+            }
+
+            if (runtimeMaterial.SpecularGlossinessTexture != null)
+            {
+                throw new NotImplementedException("runtimeMaterial.DiffuseTexture");
+            }
+
+            return material;
+        }
+        
 
         /// <summary>
         /// Interleaves the primitive attributes to a single bufferview

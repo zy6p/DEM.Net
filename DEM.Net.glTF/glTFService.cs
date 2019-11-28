@@ -26,6 +26,7 @@
 
 using AssetGenerator;
 using AssetGenerator.Runtime;
+using AssetGenerator.Runtime.Extensions;
 using DEM.Net.Core;
 using DEM.Net.Core.Imagery;
 using Microsoft.Extensions.Logging;
@@ -133,7 +134,7 @@ namespace DEM.Net.glTF
                     {
                         Generator = "DEM-Net Elevation API",
                         Copyright = GetAttributionText(attributions),
-                        Extras =  new Extras() { Attributes = GetAttributionExtraText(attributions) },
+                        Extras = new Extras() { Attributes = GetAttributionExtraText(attributions) },
                         Version = "2.0",
                     },
                     Scenes = new List<Scene>
@@ -150,7 +151,9 @@ namespace DEM.Net.glTF
                             },
                         },
                         }
-                    }
+                    },
+                    //ExtensionsUsed = new List<string> { nameof(KHR_materials_pbrSpecularGlossiness) },
+                    //ExtensionsRequired = new List<string> { nameof(KHR_materials_pbrSpecularGlossiness) },
                 }
             };
 
@@ -369,7 +372,7 @@ namespace DEM.Net.glTF
                             ,
                             Positions = vertices
                             ,
-                            Material = new Material() { DoubleSided = true  }
+                            Material = new Material() { DoubleSided = true }
                             ,
                             Indices = indices
                             ,
@@ -400,7 +403,7 @@ namespace DEM.Net.glTF
             Stopwatch sw = null;
             if ((_logger?.IsEnabled(LogLevel.Trace)).GetValueOrDefault(false))
             {
-                 sw = Stopwatch.StartNew();
+                sw = Stopwatch.StartNew();
                 _logger.LogTrace("Baking points...");
             }
 
@@ -520,9 +523,16 @@ namespace DEM.Net.glTF
                         {
                             BaseColorFactor = Vector4.One,
                             BaseColorTexture = GetTextureFromImage(texture.BaseColorTexture.FilePath),
-                            MetallicFactor = 0,
-                            RoughnessFactor = 1
+                            MetallicFactor = 0.01f,
+                            RoughnessFactor = 0.99f
                         };
+
+                        //// KHR_materials_pbrSpecularGlossiness
+                        //var pbrSpecularGlossinessExtension = new KHR_materials_pbrSpecularGlossiness();
+                        //pbrSpecularGlossinessExtension.GlossinessFactor = 0;
+                        //pbrSpecularGlossinessExtension.SpecularFactor = Vector3.Zero;
+                        //mesh.Material.Extensions = new List<Extension> { pbrSpecularGlossinessExtension };
+
                         if (texture.NormalTexture != null)
                         {
                             mesh.Material.NormalTexture = GetTextureFromImage(texture.NormalTexture.FilePath);
@@ -539,7 +549,7 @@ namespace DEM.Net.glTF
             }
             return mesh;
         }
-      
+
 
         private Texture GetTextureFromImage(string texture)
         {
